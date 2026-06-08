@@ -226,6 +226,65 @@ export async function POST(req: NextRequest): Promise<Response> {
       async function processTarget(t: { ip: string; port: number; protocol: string }): Promise<void> {
         const baseUrl = `${t.protocol}://${t.ip}:${t.port}`;
 
+        // --- Catch-all / SPA detection ----------------------------------------
+        // Send 3 probes with random paths. If they all return 200 with the
+        // same body, it's a single-page app with wildcard routing — skip it.
+        let isSpa = false;
+        const probes = [
+          `/__spa_probe_${Math.random().toString(36).slice(2, 8)}`,
+          `/__spa_probe_${Math.random().toString(36).slice(2, 8)}`,
+          `/__spa_probe_${Math.random().toString(36).slice(2, 8)}`,
+        ];
+        const probeResults: Array<{ status: number; hash: string | null }> = [];
+
+        for (const probePath of probes) {
+          if (aborted) break;
+          try {
+            const c = new AbortController();
+            const tmr = setTimeout(() => c.abort(), 2000);
+            const r = await fetch(`${baseUrl}${probePath}`, {
+              method: "GET",
+              headers: { "User-Agent": USER_AGENTS[0], Accept: "*/*" },
+              signal: c.signal,
+              redirect: "manual",
+            });
+            clearTimeout(tmr);
+            const body = await r.text().catch(() => "");
+            // Simple hash: first 200 chars + content-length
+            const cl = r.headers.get("content-length") || "";
+            const hash = `${cl}:${body.slice(0, 200)}`;
+            probeResults.push({ status: r.status, hash });
+          } catch {
+            probeResults.push({ status: -1, hash: null });
+          }
+        }
+
+        // All probes returned 200 with identical content → SPA
+        if (
+          probeResults.length === 3 &&
+          probeResults.every((p) => p.status === 200 && p.hash !== null) &&
+          probeResults[0].hash === probeResults[1].hash &&
+          probeResults[1].hash === probeResults[2].hash
+        ) {
+          isSpa = true;
+          enqueue(
+            sseEvent("skipped", {
+              target: t.ip,
+              port: t.port,
+              protocol: t.protocol,
+              reason: "spa_catchall",
+              message: "Single-page app with catch-all routing — skipping",
+            }),
+          );
+        }
+
+        if (isSpa) {
+          completed++;
+          enqueue(sseEvent("progress", { completed, total: scanTargets.length, found }));
+          return;
+        }
+        // --- End SPA detection ------------------------------------------------
+
         for (const entry of entries) {
           if (aborted) break;
 

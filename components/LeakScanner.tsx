@@ -170,6 +170,7 @@ export function LeakScanner(): React.ReactElement {
   const [totalScans, setTotalScans] = useState(0);
   const [completed, setCompleted] = useState(0);
   const [found, setFound] = useState(0);
+  const [skipped, setSkipped] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [results, setResults] = useState<ScanResult[]>([]);
@@ -261,6 +262,7 @@ export function LeakScanner(): React.ReactElement {
     setTotalScans(0);
     setCompleted(0);
     setFound(0);
+    setSkipped(0);
     setResults([]);
     setExpandedRows(new Set());
     setElapsed(0);
@@ -338,6 +340,8 @@ export function LeakScanner(): React.ReactElement {
             const r = parsed as ScanResult;
             setResults((prev) => [...prev, r]);
             setFound((prev) => prev + 1);
+          } else if (ev.event === "skipped") {
+            setSkipped((prev) => prev + 1);
           } else if (ev.event === "progress") {
             const p = parsed as ProgressPayload;
             setCompleted(p.completed);
@@ -713,7 +717,9 @@ export function LeakScanner(): React.ReactElement {
                 <span className="text-blood-neon">
                   {found} found
                 </span>
-                <span>{fmtElapsed(elapsed)}</span>
+                <span className="text-ash-dim">
+                  {skipped > 0 ? `${skipped} skipped · ` : ""}{fmtElapsed(elapsed)}
+                </span>
               </div>
 
               {/* Progress track */}
