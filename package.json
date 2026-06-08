@@ -1,16 +1,43 @@
 {
-  "name": "sqlmap-gui",
+  "name": "sqli-striker",
   "version": "0.1.0",
-  "private": true,
+  "description": "Tactical web interface for sqlmap — SQL injection strike platform. Terminal aesthetic, real-time SSE streaming, dual Simple/Expert modes, i18n (EN/PT-BR).",
+  "keywords": [
+    "sql-injection",
+    "sqlmap",
+    "penetration-testing",
+    "cybersecurity",
+    "security-tools",
+    "bug-bounty",
+    "sqli",
+    "web-security",
+    "offensive-security"
+  ],
+  "homepage": "https://github.com/admmoises/sqli-striker",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/admmoises/sqli-striker"
+  },
+  "bugs": {
+    "url": "https://github.com/admmoises/sqli-striker/issues"
+  },
+  "author": "th3_w6rst <th3w6rst@proton.me>",
+  "license": "MIT",
+  "private": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.39.0",
+    "lucide-react": "^1.16.0",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

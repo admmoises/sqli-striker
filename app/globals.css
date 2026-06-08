@@ -1,26 +1,320 @@
 @import "tailwindcss";
 
+/* ============================================================
+   SQLMAP CONTROL — visual system
+   Palette: void/ink black, blood red, bone white. Brutalist
+   cyberpunk terminal. Heavy mono type, CRT scanlines, glitch.
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --void: #000000;
+  --ink: #0a0000;
+  --ink-2: #140404;
+  --blood: #ff0033;
+  --blood-deep: #8b0000;
+  --blood-neon: #ff1744;
+  --bone: #f8f4ec;
+  --bone-bright: #ffffff;
+  --bone-dim: #c9c3b8;
+  --ash: #9a9a9a;
+  --ash-dim: #4a4a4a;
+  --scan: rgba(255, 0, 51, 0.04);
+  --grid: rgba(255, 0, 51, 0.08);
 }
 
+/* Tailwind v4 design tokens — registers colors & fonts as utilities. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-void: var(--void);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-blood: var(--blood);
+  --color-blood-deep: var(--blood-deep);
+  --color-blood-neon: var(--blood-neon);
+  --color-bone: var(--bone);
+  --color-bone-bright: var(--bone-bright);
+  --color-bone-dim: var(--bone-dim);
+  --color-ash: var(--ash);
+  --color-ash-dim: var(--ash-dim);
+
+  --font-display: var(--font-vt323), "VT323", ui-monospace, monospace;
+  --font-mono: var(--font-jbmono), "JetBrains Mono", ui-monospace, monospace;
+
+  --shadow-glow: 0 0 20px var(--blood);
+  --shadow-glow-sm: 0 0 8px var(--blood);
+  --shadow-glow-lg: 0 0 40px var(--blood);
+
+  --animate-glitch: glitch 2.4s steps(1, end) infinite;
+  --animate-flicker: flicker 3.5s ease-in-out infinite;
+  --animate-pulse-red: pulse-red 1.6s ease-in-out infinite;
+  --animate-boot: boot-text 0.4s steps(20, end) forwards;
+  --animate-boot-line: boot-text 0.25s steps(20, end);
+  --animate-scan: scanline-move 8s linear infinite;
+  --animate-cursor: cursor-blink 1.05s steps(1, end) infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* --- aggressive reset --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(ellipse at center, var(--ink-2) 0%, var(--void) 80%),
+    var(--ink);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--blood);
+  color: var(--void);
+  text-shadow: none;
+}
+
+button, input, textarea, select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+a {
+  color: var(--blood);
+  text-decoration: none;
+}
+
+/* --- custom scrollbar (red on black, thin) --- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--blood-deep) var(--void);
+}
+
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track {
+  background: var(--void);
+  border-left: 1px solid rgba(255, 0, 51, 0.15);
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--blood-deep);
+  border-radius: 0;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--blood); }
+*::-webkit-scrollbar-corner { background: var(--void); }
+
+/* --- utility classes --- */
+
+.glow-red {
+  text-shadow:
+    0 0 4px var(--blood),
+    0 0 10px var(--blood-deep),
+    0 0 20px var(--blood-deep);
+}
+
+.glow-red-soft {
+  text-shadow:
+    0 0 4px rgba(255, 0, 51, 0.55),
+    0 0 12px rgba(255, 0, 51, 0.25);
+}
+
+.scanlines {
+  position: relative;
+}
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    var(--scan) 3px,
+    var(--scan) 3px
+  );
+  mix-blend-mode: screen;
+}
+
+.crt {
+  position: relative;
+}
+.crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
+  z-index: 2;
+}
+
+.chromatic {
+  text-shadow:
+    1px 0 0 var(--blood),
+    -1px 0 0 rgba(0, 255, 255, 0.35);
+}
+
+.grain {
+  /* SVG noise as inline data URI */
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 0 0 0 0 0 0.2 0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 200px 200px;
+}
+
+.box-terminal {
+  position: relative;
+  border: 1px solid var(--blood-deep);
+  background: rgba(10, 0, 0, 0.55);
+  padding: 1rem;
+}
+.box-terminal::before,
+.box-terminal::after {
+  position: absolute;
+  font-family: var(--font-mono);
+  color: var(--blood);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 6px var(--blood-deep);
+}
+.box-terminal::before {
+  content: "┌─";
+  top: -1px;
+  left: -1px;
+}
+.box-terminal::after {
+  content: "─┘";
+  bottom: -1px;
+  right: -1px;
+}
+
+.bracket-corners {
+  position: relative;
+}
+.bracket-corners::before,
+.bracket-corners::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--blood);
+  border-style: solid;
+  border-width: 0;
+}
+.bracket-corners::before {
+  top: -1px; left: -1px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+.bracket-corners::after {
+  bottom: -1px; right: -1px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+.glitch {
+  position: relative;
+  animation: glitch 2.4s steps(1, end) infinite;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.glitch::before {
+  color: var(--blood);
+  transform: translate(-1px, 0);
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+.glitch::after {
+  color: rgba(0, 255, 255, 0.6);
+  transform: translate(1px, 0);
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+
+.cursor-blink::after {
+  content: "█";
+  display: inline-block;
+  margin-left: 0.15em;
+  animation: cursor-blink 1.05s steps(1, end) infinite;
+  color: var(--blood);
+}
+
+.divider-x {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--blood-deep) 20%,
+    var(--blood) 50%,
+    var(--blood-deep) 80%,
+    transparent 100%
+  );
+  opacity: 0.6;
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* --- keyframes --- */
+
+@keyframes glitch {
+  0%, 95%, 100% { transform: translate(0, 0); filter: none; }
+  96%           { transform: translate(-1px, 0.5px); filter: hue-rotate(-10deg); }
+  97%           { transform: translate(1px, -0.5px); filter: hue-rotate(10deg); }
+  98%           { transform: translate(-0.5px, 0); filter: none; }
+}
+
+@keyframes flicker {
+  0%, 100%      { opacity: 1; }
+  3%, 5%        { opacity: 0.6; }
+  4%            { opacity: 0.85; }
+  45%           { opacity: 0.95; }
+  46%           { opacity: 0.7; }
+  50%           { opacity: 1; }
+}
+
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 0, 51, 0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(255, 0, 51, 0); }
+}
+
+@keyframes boot-text {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes scanline-move {
+  0%   { transform: translateY(-10%); }
+  100% { transform: translateY(110vh); }
+}
+
+@keyframes cursor-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
