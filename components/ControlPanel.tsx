@@ -17,11 +17,13 @@ import { MethodPanel } from "@/components/MethodPanel";
 import { OutputStream } from "@/components/OutputStream";
 import { PresetPicker } from "@/components/PresetPicker";
 import { ProxyConfig } from "@/components/ProxyConfig";
+import { QueuePanel } from "@/components/QueuePanel";
 import { ResultsPanel } from "@/components/ResultsPanel";
 import { StatusFooter } from "@/components/StatusFooter";
 import { TamperPicker } from "@/components/TamperPicker";
 import { TargetInput } from "@/components/TargetInput";
 import { TechniqueSelector } from "@/components/TechniqueSelector";
+import { WafLab } from "@/components/WafLab";
 import {
   DEFAULT_CONFIG,
   PRESETS,
@@ -388,10 +390,12 @@ export function ControlPanel(): React.ReactElement {
 
       {/* MAIN GRID */}
       {mode === "expert" ? (
-        <section
-          key="expert-grid"
-          className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-3 lg:gap-4 p-3 sm:p-4 lg:p-6"
-        >
+        <>
+          {/* EXPERT MAIN GRID */}
+          <section
+            key="expert-grid"
+            className="flex-1 flex flex-col lg:grid lg:grid-cols-12 gap-3 lg:gap-4 p-3 sm:p-4 lg:p-6"
+          >
           {/* LEFT — config (tabbed) */}
           <motion.aside
             {...panelMotion(0.05)}
@@ -536,12 +540,36 @@ export function ControlPanel(): React.ReactElement {
             <ResultsPanel lines={state.lines} />
           </motion.aside>
         </section>
+
+        {/* LABS ROW — Queue + WAF */}
+        <section className="lg:grid lg:grid-cols-2 gap-3 lg:gap-4 px-3 sm:px-4 lg:px-6 pb-3 lg:pb-6">
+          <motion.div {...panelMotion(0.3)} className="bracket-corners bg-void/40 p-3 sm:p-4">
+            <QueuePanel
+              onRunItem={(item) => {
+                patch("target", item.target);
+                if (item.config && typeof item.config === "object") {
+                  const c = item.config as Partial<ScanConfig>;
+                  if (c.method) patch("method", c.method);
+                  if (c.data) patch("data", c.data);
+                  if (c.cookie) patch("cookie", c.cookie);
+                }
+              }}
+              currentScanId={state.scanId}
+              isLive={live}
+            />
+          </motion.div>
+          <motion.div {...panelMotion(0.35)} className="bracket-corners bg-void/40 p-3 sm:p-4">
+            <WafLab target={cfg.target} tampers={cfg.tampers} />
+          </motion.div>
+        </section>
+        </>
       ) : (
-        // SIMPLE LAYOUT — target full-width, presets row, big output + results,
-        // prominent EXECUTE bar at the bottom. State is preserved across mode
-        // switches; the advanced controls just stay hidden.
-        <section
-          key="simple-grid"
+        <>
+          {/* SIMPLE LAYOUT — target full-width, presets row, big output + results,
+              prominent EXECUTE bar at the bottom. State is preserved across mode
+              switches; the advanced controls just stay hidden. */}
+          <section
+            key="simple-grid"
           className="flex-1 flex flex-col gap-4 p-3 sm:p-5 lg:p-8 lg:gap-6"
         >
           <motion.div
@@ -603,6 +631,29 @@ export function ControlPanel(): React.ReactElement {
             />
           </motion.div>
         </section>
+
+        {/* LABS ROW — Queue + WAF */}
+        <section className="lg:grid lg:grid-cols-2 gap-3 lg:gap-4 px-3 sm:px-5 lg:px-8">
+          <motion.div {...panelMotion(0.3)} className="bracket-corners bg-void/40 p-3 sm:p-4">
+            <QueuePanel
+              onRunItem={(item) => {
+                patch("target", item.target);
+                if (item.config && typeof item.config === "object") {
+                  const c = item.config as Partial<ScanConfig>;
+                  if (c.method) patch("method", c.method);
+                  if (c.data) patch("data", c.data);
+                  if (c.cookie) patch("cookie", c.cookie);
+                }
+              }}
+              currentScanId={state.scanId}
+              isLive={live}
+            />
+          </motion.div>
+          <motion.div {...panelMotion(0.35)} className="bracket-corners bg-void/40 p-3 sm:p-4">
+            <WafLab target={cfg.target} tampers={cfg.tampers} />
+          </motion.div>
+        </section>
+        </>
       )}
 
       {/* SR-only live region — announces only terminal scan transitions so

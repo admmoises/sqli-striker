@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { SchemaVisual } from "@/components/SchemaVisual";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -219,6 +220,9 @@ export function EnumAssistant(): React.ReactElement {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  /** Toggle between tree and visual schema view. */
+  const [schemaView, setSchemaView] = useState<"tree" | "visual">("tree");
 
   // Auto-scroll raw output
   useEffect(() => {
@@ -566,10 +570,26 @@ export function EnumAssistant(): React.ReactElement {
           {...PANEL_MOTION}
           className="lg:col-span-4 xl:col-span-4 bracket-corners bg-void/60 p-3 sm:p-4 flex flex-col min-h-[420px] lg:max-h-[calc(100vh-120px)] overflow-hidden"
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <div className="text-sm font-display tracking-wider text-bone uppercase">
               <span className="text-blood">▍</span> Schema
             </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center border border-blood-deep/70 bg-void/70 p-0.5">
+                {(["tree", "visual"] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setSchemaView(v)}
+                    className={cn(
+                      "px-2 py-0.5 font-mono text-[10px] tracking-wider transition-colors",
+                      schemaView === v ? "text-void bg-blood" : "text-ash hover:text-blood-neon",
+                    )}
+                  >
+                    {v === "tree" ? "Tree" : "Visual"}
+                  </button>
+                ))}
+              </div>
             {currentTableKey &&
               (state.columnsByTable[currentTableKey]?.length ?? 0) > 0 && (
                 <button
@@ -580,10 +600,12 @@ export function EnumAssistant(): React.ReactElement {
                   {t("enum.selectAll")}
                 </button>
               )}
+            </div>
           </div>
           <div className="divider-x mb-2" />
 
-          <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+          {schemaView === "tree" ? (
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1">
             {state.databases.length === 0 && (
               <div className="text-xs text-ash-dim font-mono text-center py-8">
                 {t("enum.noDatabases")}
@@ -702,6 +724,15 @@ export function EnumAssistant(): React.ReactElement {
               );
             })}
           </div>
+          ) : (
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              <SchemaVisual
+                databases={state.databases}
+                tables={state.tablesByDb}
+                columns={state.columnsByTable}
+              />
+            </div>
+          )}
         </motion.section>
 
         {/* RIGHT — Raw output (preserved per step, switchable) */}
