@@ -16,6 +16,8 @@ ___  ___  _    ___      ___ _____ ___ ___ _  _____ ___
 
 SQLI Striker is a cyberpunk-themed web dashboard that wraps [sqlmap](https://github.com/sqlmapproject/sqlmap), the industry-standard SQL injection tool. It spawns and controls sqlmap processes, streams output in real-time via SSE, parses results heuristically, and packs every sqlmap knob into a dual-mode UI — Simple for quick recon, Expert for surgical strikes.
 
+![SQLI Striker — Simple Mode](public/screenshots/simple-mode.png)
+
 ---
 
 ## Why
@@ -109,6 +111,8 @@ After a scan finds injectable parameters, click **ENUM** in the header to enter 
 2. Select a database → enumerate tables
 3. Select a table → enumerate columns
 4. Select columns → dump data
+
+![SQLI Striker — Enumeration](public/screenshots/enumeration.png)
 
 ---
 
