@@ -14,7 +14,7 @@ ___  ___  _    ___      ___ _____ ___ ___ _  _____ ___
 [![React](https://img.shields.io/badge/React-19.2-blue)](https://react.dev)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-SQLI Striker is a cyberpunk-themed web dashboard that wraps [sqlmap](https://github.com/sqlmapproject/sqlmap), the industry-standard SQL injection tool. It spawns and controls sqlmap processes, streams output in real-time via SSE, parses results heuristically, and packs every sqlmap knob into a dual-mode UI — Simple for quick recon, Expert for surgical strikes.
+SQLI Striker is a web dashboard that wraps [sqlmap](https://github.com/sqlmapproject/sqlmap), the industry-standard SQL injection tool. It spawns and controls sqlmap processes, streams output in real-time via SSE, parses results heuristically, and packs every sqlmap knob into a dual-mode UI — Simple for quick recon, Expert for surgical strikes.
 
 ![SQLI Striker — Simple Mode](public/screenshots/simple-mode.png)
 
@@ -57,6 +57,12 @@ sqlmap's CLI is powerful but typing `--technique=BEUST --level=5 --risk=3 --tamp
 ---
 
 ## Quick Start
+
+```bash
+npm install sqli-striker
+```
+
+Or clone the repo:
 
 ```bash
 git clone https://github.com/admmoises/sqli-striker
