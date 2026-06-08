@@ -12,6 +12,7 @@ import { BootSequence } from "@/components/BootSequence";
 import { ControlBar } from "@/components/ControlBar";
 import { ExpertTabs } from "@/components/ExpertTabs";
 import { HelpDrawer } from "@/components/HelpDrawer";
+import { LeakScanner } from "@/components/LeakScanner";
 import { LevelRiskSliders } from "@/components/LevelRiskSliders";
 import { MethodPanel } from "@/components/MethodPanel";
 import { OutputStream } from "@/components/OutputStream";
@@ -562,6 +563,11 @@ export function ControlPanel(): React.ReactElement {
             <WafLab target={cfg.target} tampers={cfg.tampers} />
           </motion.div>
         </section>
+
+        {/* LEAK SCANNER — full-width recon */}
+        <motion.div {...panelMotion(0.4)} className="bracket-corners bg-void/40 p-3 sm:p-4 mx-3 sm:mx-4 lg:mx-6 mb-3 lg:mb-6">
+          <LeakScanner />
+        </motion.div>
         </>
       ) : (
         <>
@@ -653,6 +659,11 @@ export function ControlPanel(): React.ReactElement {
             <WafLab target={cfg.target} tampers={cfg.tampers} />
           </motion.div>
         </section>
+
+        {/* LEAK SCANNER — full-width recon */}
+        <motion.div {...panelMotion(0.4)} className="bracket-corners bg-void/40 p-3 sm:p-4 mx-3 sm:mx-5 lg:mx-8">
+          <LeakScanner />
+        </motion.div>
         </>
       )}
 
