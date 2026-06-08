@@ -147,6 +147,11 @@ export function LeakScanner(): React.ReactElement {
   const [targets, setTargets] = useState("");
   const [ports, setPorts] = useState("80,443");
   const [concurrency, setConcurrency] = useState(20);
+  // Evasion
+  const [proxy, setProxy] = useState("");
+  const [delay, setDelay] = useState(0);
+  const [randomAgent, setRandomAgent] = useState(true);
+  const [randomize, setRandomize] = useState(true);
   const [protoHttp, setProtoHttp] = useState(true);
   const [protoHttps, setProtoHttps] = useState(true);
 
@@ -259,6 +264,10 @@ export function LeakScanner(): React.ReactElement {
         categories: selectedCategories.length > 0 ? selectedCategories : undefined,
         severities:
           selectedSeverities.length === 4 ? undefined : selectedSeverities,
+        proxy: proxy.trim() || undefined,
+        delay: delay > 0 ? delay : undefined,
+        randomAgent,
+        randomize,
       };
 
       const now = Date.now();
@@ -521,6 +530,65 @@ export function LeakScanner(): React.ReactElement {
               </label>
             </div>
           </div>
+        </div>
+
+        {/* Evasion row: proxy, delay, random agent, randomize */}
+        <div className="flex flex-wrap items-end gap-4 mb-4">
+          {/* Proxy */}
+          <div className="flex flex-col gap-1">
+            <label className="font-mono text-[10px] text-ash tracking-wider uppercase">
+              Proxy
+            </label>
+            <input
+              type="text"
+              value={proxy}
+              onChange={(e) => setProxy(e.target.value)}
+              disabled={scanning}
+              className="w-44 bg-void border border-blood-deep/30 p-1.5 font-mono text-xs text-bone placeholder:text-ash-dim focus:border-blood/50 focus:outline-none disabled:opacity-30"
+              placeholder="http://127.0.0.1:8080"
+            />
+          </div>
+
+          {/* Delay (ms) */}
+          <div className="flex flex-col gap-1">
+            <label className="font-mono text-[10px] text-ash tracking-wider uppercase">
+              Delay (ms)
+            </label>
+            <input
+              type="number"
+              min={0}
+              max={5000}
+              step={100}
+              value={delay}
+              onChange={(e) => setDelay(Math.max(0, Math.min(5000, parseInt(e.target.value) || 0)))}
+              disabled={scanning}
+              className="w-20 text-center bg-void border border-blood-deep/30 p-1.5 font-mono text-xs text-bone focus:border-blood/50 focus:outline-none disabled:opacity-30 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
+
+          {/* Random Agent toggle */}
+          <label className="flex items-center gap-1.5 font-mono text-[10px] text-ash tracking-wider uppercase cursor-pointer select-none pb-1">
+            <input
+              type="checkbox"
+              checked={randomAgent}
+              onChange={(e) => setRandomAgent(e.target.checked)}
+              disabled={scanning}
+              className="accent-blood w-3 h-3"
+            />
+            Rotate UA
+          </label>
+
+          {/* Randomize paths toggle */}
+          <label className="flex items-center gap-1.5 font-mono text-[10px] text-ash tracking-wider uppercase cursor-pointer select-none pb-1">
+            <input
+              type="checkbox"
+              checked={randomize}
+              onChange={(e) => setRandomize(e.target.checked)}
+              disabled={scanning}
+              className="accent-blood w-3 h-3"
+            />
+            Random paths
+          </label>
         </div>
 
         {/* Category filter */}
