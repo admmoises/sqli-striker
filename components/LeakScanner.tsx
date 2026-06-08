@@ -179,7 +179,7 @@ export function LeakScanner(): React.ReactElement {
   const abortRef = useRef<AbortController | null>(null);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // --- Fetch wordlist on mount -----------------------------------------------
+  // --- Fetch wordlist + config on mount ---------------------------------------
   useEffect(() => {
     let cancelled = false;
     fetch("/api/leak/wordlist")
@@ -191,7 +191,18 @@ export function LeakScanner(): React.ReactElement {
         }
       })
       .catch(() => {
-        // silently ignore — wordlist fetch is optional for UI display
+        // silently ignore
+      });
+    // Fetch default proxy from server env
+    fetch("/api/leak/config")
+      .then((res) => res.json())
+      .then((data: { proxy: string | null }) => {
+        if (!cancelled && data.proxy) {
+          setProxy(data.proxy);
+        }
+      })
+      .catch(() => {
+        // silently ignore
       });
     return () => {
       cancelled = true;
