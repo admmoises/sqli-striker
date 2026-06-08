@@ -34,8 +34,6 @@ export interface WafDetectionResult {
   allMatches: Array<{ name: string; confidence: number }>;
 }
 
-import type { IncomingMessage } from "node:http";
-
 export const WAF_SIGNATURES: WafSignature[] = [
   {
     name: "Cloudflare",

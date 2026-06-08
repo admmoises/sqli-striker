@@ -7,8 +7,6 @@
  * Lives on globalThis like scan-manager to survive HMR.
  */
 
-import type { ChildProcess } from "node:child_process";
-
 export type QueueItemStatus =
   | "queued"
   | "running"
@@ -28,9 +26,7 @@ export interface QueueItem {
   error: string | null;
   retries: number;
   resultSummary: string | null;
-  // Scheduling
   scheduledAt: number | null;
-  // Order in queue
   position: number;
 }
 
@@ -44,10 +40,11 @@ export interface QueueState {
 declare global {
   // eslint-disable-next-line no-var
   var __sqliQueueState: QueueState | undefined;
+  // eslint-disable-next-line no-var
+  var __sqliQueuePosition: number | undefined;
 }
 
 const DEFAULT_MAX_CONCURRENCY = 3;
-const MAX_RETRIES = 2;
 
 export const queueState: QueueState =
   globalThis.__sqliQueueState ?? {
@@ -61,7 +58,13 @@ if (!globalThis.__sqliQueueState) {
   globalThis.__sqliQueueState = queueState;
 }
 
-let positionCounter = 0;
+if (globalThis.__sqliQueuePosition === undefined) {
+  globalThis.__sqliQueuePosition = 0;
+}
+
+function nextPosition(): number {
+  return globalThis.__sqliQueuePosition!++;
+}
 
 export function addToQueue(
   target: string,
@@ -80,7 +83,7 @@ export function addToQueue(
     retries: 0,
     resultSummary: null,
     scheduledAt,
-    position: positionCounter++,
+    position: nextPosition(),
   };
   queueState.items.push(item);
   return item;
@@ -120,7 +123,7 @@ export function removeItem(id: string): boolean {
 
 export function clearQueue(): void {
   queueState.items = [];
-  positionCounter = 0;
+  globalThis.__sqliQueuePosition = 0;
 }
 
 export function getNextQueued(): QueueItem | undefined {

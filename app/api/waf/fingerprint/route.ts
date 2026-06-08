@@ -30,6 +30,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
+  // Block SSRF: reject localhost / private IP ranges
+  const BLOCKED_HOSTS = /^(localhost|127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|0\.0\.0\.0|::1|\[::1\]|169\.254\.)/i;
+  try {
+    const url = new URL(target);
+    if (BLOCKED_HOSTS.test(url.hostname)) {
+      return NextResponse.json(
+        { error: "SSRF blocked: target must not be a local/private address" },
+        { status: 400 },
+      );
+    }
+  } catch {
+    return NextResponse.json({ error: "invalid URL format" }, { status: 400 });
+  }
+
   // Send multiple probes with different payload types to trigger WAF
   const probes = [
     // 1. Clean request (baseline)
