@@ -1,6 +1,6 @@
 {
   "name": "sqli-striker",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tactical web interface for sqlmap — SQL injection strike platform. Terminal aesthetic, real-time SSE streaming, dual Simple/Expert modes, i18n (EN/PT-BR).",
   "keywords": [
     "sql-injection",
